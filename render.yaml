@@ -3,8 +3,7 @@ services:
     name: sentence-detective
     runtime: go
     plan: free
-    rootDir: backend
-    buildCommand: go build -o bin/server ./cmd/server
-    startCommand: ./bin/server
+    buildCommand: cd backend && go build -o bin/server ./cmd/server
+    startCommand: cd backend && ./bin/server
     healthCheckPath: /
     autoDeploy: true
