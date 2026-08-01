@@ -179,41 +179,12 @@ func (h *Hub) join(w http.ResponseWriter, r *http.Request, code string) {
 	}
 	player := newPlayer(cleanName(req.Name), req.Avatar, false)
 	room.Players = append(room.Players, player)
-	room.LobbyStartsAt = time.Now().Add(30 * time.Second).UnixMilli()
-	deadline := room.LobbyStartsAt
-	room.Message = player.Name + " เข้าร่วมแล้ว — ระบบจะเริ่มใน 30 วินาที"
+	room.LobbyStartsAt = 0
+	room.Message = player.Name + " เข้าร่วมแล้ว — รอครูเริ่มเกม"
 	h.broadcastLocked(room)
 	data := snapshot(room)
 	h.mu.Unlock()
 	writeJSON(w, 200, map[string]any{"room": data, "playerId": player.ID})
-	go h.runAutomaticLobby(code, deadline)
-}
-
-func (h *Hub) runAutomaticLobby(code string, deadline int64) {
-	duration := time.Until(time.UnixMilli(deadline))
-	if duration > 0 {
-		time.Sleep(duration)
-	}
-	h.mu.Lock()
-	r := h.rooms[code]
-	if r == nil || r.Phase != "lobby" || r.LobbyStartsAt != deadline || len(r.Players) < 2 {
-		h.mu.Unlock()
-		return
-	}
-	var host *Player
-	for _, p := range r.Players {
-		if p.Host {
-			host = p
-			break
-		}
-	}
-	if host == nil || startGame(r, host, "") != nil {
-		h.mu.Unlock()
-		return
-	}
-	h.broadcastLocked(r)
-	h.mu.Unlock()
-	h.runAutomaticStage(code)
 }
 
 func (h *Hub) action(w http.ResponseWriter, r *http.Request, code string) {
@@ -419,6 +390,12 @@ func advanceAutomaticRoundLocked(r *Room) bool {
 
 func (h *Hub) runAutomaticStage(code string) {
 	for {
+		h.mu.RLock()
+		intro := h.rooms[code] != nil && h.rooms[code].Round == 1 && h.rooms[code].Current == nil
+		h.mu.RUnlock()
+		if intro {
+			time.Sleep(7 * time.Second)
+		}
 		h.mu.Lock()
 		r := h.rooms[code]
 		if r == nil || r.Phase != "playing" || r.Current != nil {
