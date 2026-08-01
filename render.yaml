@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: sentence-detective
+    runtime: go
+    plan: free
+    rootDir: backend
+    buildCommand: go build -o bin/server ./cmd/server
+    startCommand: ./bin/server
+    healthCheckPath: /
+    autoDeploy: true
