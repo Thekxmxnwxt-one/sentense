@@ -59,4 +59,25 @@
 .student-result .vote-chart .vote-chart-row p{margin:0;color:#756a7d;font-size:.7rem;line-height:1.4;overflow-wrap:anywhere}
 @keyframes voteBarGrow{from{width:0}}
 @media(max-width:600px){.student-result .vote-chart{gap:.55rem}.student-result .vote-chart .reveal-answer{align-items:flex-start;flex-direction:column;gap:.2rem}.student-result .vote-chart .reveal-answer b{text-align:left}.student-result .vote-chart .vote-chart-row{padding:.65rem}.student-result .vote-chart .vote-chart-head{grid-template-columns:26px minmax(0,1fr) auto;gap:.4rem}.student-result .vote-chart .vote-index{width:25px;height:25px}.student-result .vote-chart .vote-chart-head b{font-size:.8rem}.student-result .vote-chart .vote-chart-head strong{font-size:.74rem}.student-result .vote-chart .vote-bar-track{height:10px}}
+
+/* Stage mascots add guidance and personality without covering the question. */
+.question-mascot{position:relative;display:flex;align-items:center;gap:.8rem;width:min(100%,720px);margin:.8rem auto 1rem;padding:.65rem 3rem .65rem .75rem;border:1px solid #ded2e8;border-radius:18px;background:linear-gradient(135deg,#fff,#f7f0ff);box-shadow:0 8px 20px #38204f10;overflow:hidden}
+.mascot-face{flex:0 0 auto;width:58px;height:58px;display:grid;place-items:center;border-radius:18px;background:#fff0ad;font-size:2.25rem;box-shadow:0 5px 0 #e5bd45;animation:mascotBob 2.1s ease-in-out infinite}
+.mascot-bubble{min-width:0;text-align:left}
+.mascot-bubble small,.mascot-bubble b{display:block}
+.mascot-bubble small{margin-bottom:.18rem;color:#79529a;font-size:.66rem;font-weight:1000;letter-spacing:.04em}
+.mascot-bubble b{font-size:.8rem;line-height:1.45;color:#39264f}
+.mascot-prop{position:absolute;font-size:1.15rem;opacity:.55;animation:propTwinkle 1.7s ease-in-out infinite alternate}
+.mascot-prop.left{left:4px;top:3px}.mascot-prop.right{right:12px;bottom:8px;animation-delay:.5s}
+.question-mascot.celebrate{background:linear-gradient(135deg,#fff9d9,#f2e9ff);border-color:#e4c34f}
+.question-mascot.celebrate .mascot-face{animation:mascotCelebrate .65s ease-in-out infinite alternate}
+.challenge.anatomy .question-mascot{background:linear-gradient(135deg,#f4fbff,#e5f5ff)}
+.challenge.classify .question-mascot{background:linear-gradient(135deg,#fffaf0,#fff1bd)}
+.challenge.surgery .question-mascot{background:linear-gradient(135deg,#fff7f5,#ffe9e5)}
+.challenge.creator .question-mascot{background:linear-gradient(135deg,#f4fff8,#e4f7eb)}
+@keyframes mascotBob{50%{transform:translateY(-4px) rotate(2deg)}}
+@keyframes mascotCelebrate{to{transform:translateY(-5px) rotate(7deg) scale(1.04)}}
+@keyframes propTwinkle{to{transform:scale(1.25) rotate(10deg);opacity:1}}
+@media(max-width:600px){.question-mascot{gap:.6rem;margin:.6rem auto .8rem;padding:.55rem 2rem .55rem .55rem;border-radius:14px}.mascot-face{width:46px;height:46px;border-radius:14px;font-size:1.75rem}.mascot-bubble b{font-size:.72rem;line-height:1.35}.mascot-prop{font-size:.9rem}}
+@media(prefers-reduced-motion:reduce){.mascot-face,.mascot-prop{animation:none}}
 @media(max-width:560px){.global-sound-toggle{right:10px;bottom:10px;padding:.5rem}.global-sound-toggle b{display:none}}
