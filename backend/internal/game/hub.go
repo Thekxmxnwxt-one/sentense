@@ -271,12 +271,12 @@ func startGame(r *Room, p *Player, gameID string) error {
 	r.GameID = gameOrder[0]
 	info := gameCatalog[r.GameID]
 	r.Game = info
-	r.Phase = "playing"
+	r.Phase = "stage_transition"
 	r.LobbyStartsAt = 0
 	r.Turn = 0
 	r.Round = 1
 	r.RoundWinnerID = ""
-	r.Message = "ด่าน 1/5 “" + info.Name + "” — ครูเปิดภารกิจแรกได้เลย"
+	r.Message = "เตรียมเข้าสู่ด่าน 1/5 “" + info.Name + "”"
 	return nil
 }
 func roll(r *Room, p *Player) error {
@@ -390,14 +390,40 @@ func advanceAutomaticRoundLocked(r *Room) bool {
 
 func (h *Hub) runAutomaticStage(code string) {
 	for {
-		h.mu.RLock()
-		intro := h.rooms[code] != nil && h.rooms[code].Round == 1 && h.rooms[code].Current == nil
-		h.mu.RUnlock()
-		if intro {
-			time.Sleep(7 * time.Second)
-		}
 		h.mu.Lock()
 		r := h.rooms[code]
+		if r == nil {
+			h.mu.Unlock()
+			return
+		}
+		stageIndex := r.StageIndex
+		if r.Phase == "stage_transition" {
+			h.broadcastLocked(r)
+			h.mu.Unlock()
+			time.Sleep(3 * time.Second)
+			h.mu.Lock()
+			r = h.rooms[code]
+			if r == nil || r.StageIndex != stageIndex || r.Phase != "stage_transition" {
+				h.mu.Unlock()
+				return
+			}
+			r.Phase = "stage_intro"
+			r.Message = fmt.Sprintf("อ่านคำชี้แจงด่าน %d ให้พร้อม", r.StageIndex+1)
+			h.broadcastLocked(r)
+			h.mu.Unlock()
+			time.Sleep(12 * time.Second)
+			h.mu.Lock()
+			r = h.rooms[code]
+			if r == nil || r.StageIndex != stageIndex || r.Phase != "stage_intro" {
+				h.mu.Unlock()
+				return
+			}
+			r.Phase = "playing"
+			r.Message = "เริ่มโจทย์ด่านนี้!"
+			h.broadcastLocked(r)
+			h.mu.Unlock()
+			continue
+		}
 		if r == nil || r.Phase != "playing" || r.Current != nil {
 			h.mu.Unlock()
 			return
@@ -468,7 +494,7 @@ func (h *Hub) runAutomaticResultAdvance(code string, round int) {
 }
 
 func (h *Hub) runAutomaticNextStage(code string) {
-	time.Sleep(7 * time.Second)
+	time.Sleep(4 * time.Second)
 	h.mu.Lock()
 	r := h.rooms[code]
 	if r == nil || r.Phase != "stage_complete" {
@@ -738,7 +764,7 @@ func continueStage(r *Room, p *Player) error {
 	r.StageIndex++
 	r.GameID = gameOrder[r.StageIndex]
 	r.Game = gameCatalog[r.GameID]
-	r.Phase = "playing"
+	r.Phase = "stage_transition"
 	r.Turn = 0
 	r.Round = 1
 	r.LastRoll = 0
@@ -750,7 +776,7 @@ func continueStage(r *Room, p *Player) error {
 	for _, player := range r.Players {
 		player.Position = 0
 	}
-	r.Message = fmt.Sprintf("ด่าน %d/5 “%s” — คะแนนเดิมยังอยู่ ระบบกำลังเปิดโจทย์", r.StageIndex+1, r.Game.Name)
+	r.Message = fmt.Sprintf("เตรียมเข้าสู่ด่าน %d/5 “%s”", r.StageIndex+1, r.Game.Name)
 	return nil
 }
 func restart(r *Room, p *Player) error {

@@ -15,8 +15,8 @@ func TestStartRequiresPlayers(t *testing.T) {
 	if err := startGame(r, a, ""); err != nil {
 		t.Fatal(err)
 	}
-	if r.Phase != "playing" {
-		t.Fatal("game did not start")
+	if r.Phase != "stage_transition" {
+		t.Fatal("game did not enter stage transition")
 	}
 }
 func TestTurnProtection(t *testing.T) {
