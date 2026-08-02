@@ -80,4 +80,10 @@
 @keyframes propTwinkle{to{transform:scale(1.25) rotate(10deg);opacity:1}}
 @media(max-width:600px){.question-mascot{gap:.6rem;margin:.6rem auto .8rem;padding:.55rem 2rem .55rem .55rem;border-radius:14px}.mascot-face{width:46px;height:46px;border-radius:14px;font-size:1.75rem}.mascot-bubble b{font-size:.72rem;line-height:1.35}.mascot-prop{font-size:.9rem}}
 @media(prefers-reduced-motion:reduce){.mascot-face,.mascot-prop{animation:none}}
+
+/* Large classroom rooms: keep score panels readable with up to 50 students. */
+.scoreboard h3 small{margin-left:auto;padding:.2rem .45rem;border-radius:999px;background:#eee7f5;color:#76568f;font-size:.58rem}
+.scoreboard-more{margin:.65rem 0 0;padding-top:.55rem;border-top:1px dashed #ded5e4;text-align:center;color:#81758b;font-size:.7rem}
+.teacher-score-screen .scoreboard-only{max-height:calc(100vh - 235px);overflow:auto;scrollbar-gutter:stable}
+.teacher-score-screen .stats-head{position:sticky;top:0;z-index:2;background:#fff}
 @media(max-width:560px){.global-sound-toggle{right:10px;bottom:10px;padding:.5rem}.global-sound-toggle b{display:none}}

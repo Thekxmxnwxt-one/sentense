@@ -1,6 +1,10 @@
 package game
 
 import (
+	"bytes"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 )
@@ -17,6 +21,28 @@ func TestStartRequiresPlayers(t *testing.T) {
 	}
 	if r.Phase != "stage_transition" {
 		t.Fatal("game did not enter stage transition")
+	}
+}
+
+func TestRoomAcceptsFiftyStudentsAndRejectsFiftyFirst(t *testing.T) {
+	h := NewHub()
+	host := newPlayer("ครู", "🦊", true)
+	room := &Room{Code: "ABCDE", Phase: "lobby", Players: []*Player{host}, clients: map[chan []byte]struct{}{}}
+	h.rooms[room.Code] = room
+	for i := 1; i <= maxStudentsPerRoom+1; i++ {
+		body := bytes.NewBufferString(fmt.Sprintf(`{"name":"นักเรียน %d","avatar":"🐼"}`, i))
+		req := httptest.NewRequest(http.MethodPost, "/api/rooms/ABCDE/join", body)
+		res := httptest.NewRecorder()
+		h.join(res, req, room.Code)
+		if i <= maxStudentsPerRoom && res.Code != http.StatusOK {
+			t.Fatalf("student %d rejected with status %d: %s", i, res.Code, res.Body.String())
+		}
+		if i == maxStudentsPerRoom+1 && res.Code != http.StatusConflict {
+			t.Fatalf("51st student status=%d, want 409", res.Code)
+		}
+	}
+	if got := studentCount(room); got != maxStudentsPerRoom {
+		t.Fatalf("student count=%d, want %d", got, maxStudentsPerRoom)
 	}
 }
 func TestTurnProtection(t *testing.T) {

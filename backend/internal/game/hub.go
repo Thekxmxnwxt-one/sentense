@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+const maxStudentsPerRoom = 50
+
 type Player struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
@@ -172,9 +174,9 @@ func (h *Hub) join(w http.ResponseWriter, r *http.Request, code string) {
 		writeError(w, 409, "เกมเริ่มแล้ว รอรอบถัดไปนะ")
 		return
 	}
-	if len(room.Players) >= 12 {
+	if studentCount(room) >= maxStudentsPerRoom {
 		h.mu.Unlock()
-		writeError(w, 409, "ห้องเต็มแล้ว")
+		writeError(w, 409, "ห้องเต็มแล้ว (รองรับนักเรียนสูงสุด 50 คน)")
 		return
 	}
 	player := newPlayer(cleanName(req.Name), req.Avatar, false)
@@ -185,6 +187,16 @@ func (h *Hub) join(w http.ResponseWriter, r *http.Request, code string) {
 	data := snapshot(room)
 	h.mu.Unlock()
 	writeJSON(w, 200, map[string]any{"room": data, "playerId": player.ID})
+}
+
+func studentCount(room *Room) int {
+	count := 0
+	for _, player := range room.Players {
+		if !player.Host {
+			count++
+		}
+	}
+	return count
 }
 
 func (h *Hub) action(w http.ResponseWriter, r *http.Request, code string) {
